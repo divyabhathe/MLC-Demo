@@ -1,0 +1,81 @@
+/* ============================================================
+   App.css — Layout & Header Styles
+   ============================================================
+   Styles for the App component (the outer shell).
+   This handles the header bar and the page layout.
+   
+   If you've used Bootstrap in your portfolio project,
+   think of this as replacing Bootstrap's navbar and
+   container classes with custom CSS.
+   ============================================================ */
+
+/* ---------- App Container ---------- */
+/* This wraps the entire page. We use flexbox with
+   column direction so the header sits on top and
+   the main content fills the rest. */
+.app-container {
+  display: flex;              /* Enables flexbox layout */
+  flex-direction: column;     /* Stack children vertically (header on top, main below) */
+  height: 100vh;              /* Fill the full screen height */
+  width: 100%;                /* Fill the full screen width */
+  background-color: #f5f7fa;  /* Light gray page background */
+}
+
+/* ---------- Header ---------- */
+/* The top bar with the MLC branding. Uses a dark teal
+   color taken from the MLC app's actual color scheme. */
+.app-header {
+  display: flex;                       /* Flexbox to align items horizontally */
+  align-items: center;                 /* Vertically center the items */
+  justify-content: space-between;      /* Push left group and right text apart */
+  padding: 0 24px;                     /* Horizontal padding inside the header */
+  height: 56px;                        /* Fixed header height */
+  min-height: 56px;                    /* Prevent header from shrinking */
+  background-color: #0f766e;           /* Teal — matches MLC branding */
+  color: #ffffff;                      /* White text on dark background */
+}
+
+/* Left side of header: logo + title grouped together */
+.header-left {
+  display: flex;          /* Flex to place logo and title side by side */
+  align-items: center;    /* Vertically center them */
+  gap: 12px;              /* Space between the logo and the title */
+}
+
+/* The "MLC" logo badge */
+.header-logo {
+  display: inline-flex;       /* Flex so we can center the text inside */
+  align-items: center;        /* Center vertically */
+  justify-content: center;    /* Center horizontally */
+  width: 36px;                /* Square dimensions */
+  height: 36px;
+  border-radius: 8px;         /* Rounded corners */
+  background-color: #ffffff;  /* White background */
+  color: #0f766e;             /* Teal text to match the header */
+  font-weight: 700;           /* Bold text */
+  font-size: 13px;            /* Small but readable */
+  letter-spacing: 0.5px;      /* Slight spacing between letters */
+}
+
+/* The "My Learning Coach" title */
+.header-title {
+  font-size: 18px;        /* Not too big — clean and professional */
+  font-weight: 600;       /* Semi-bold */
+  letter-spacing: -0.2px; /* Slightly tighter letter spacing */
+}
+
+/* The subtitle text on the right side */
+.header-subtitle {
+  font-size: 13px;                    /* Small, secondary text */
+  color: rgba(255, 255, 255, 0.7);   /* White but slightly transparent */
+  font-weight: 400;                   /* Normal weight */
+}
+
+/* ---------- Main Content Area ---------- */
+/* This is where the ChatUI component renders.
+   flex: 1 makes it fill all remaining space after the header. */
+.app-main {
+  flex: 1;            /* Grow to fill all available vertical space */
+  display: flex;      /* Flex so the chat inside can also stretch */
+  overflow: hidden;   /* Prevent double scrollbars */
+}
