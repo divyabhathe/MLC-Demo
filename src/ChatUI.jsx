@@ -126,15 +126,21 @@ const MOCK_RESPONSES = {
    matching response. Delete this when the real backend is ready. */
 function getMockResponse(userMessage) {
 
+  // Safety check: if userMessage is somehow not a string, return default
+  if (!userMessage || typeof userMessage !== "string") {
+    return MOCK_RESPONSES.default;
+  }
+
   // Convert the message to lowercase so keyword matching isn't case-sensitive
-  const lowerMessage = userMessage.toLowerCase();
+  var lowerMessage = userMessage.toLowerCase();
 
   // Loop through each pattern and check if any keywords appear in the message
-  for (const pattern of MOCK_RESPONSES.patterns) {
+  for (var i = 0; i < MOCK_RESPONSES.patterns.length; i++) {
+
+    var pattern = MOCK_RESPONSES.patterns[i];
 
     // .some() returns true if ANY keyword is found in the message
-    // This is like Angular's array.some() — same JavaScript method
-    const hasMatch = pattern.keywords.some(function (keyword) {
+    var hasMatch = pattern.keywords.some(function (keyword) {
       return lowerMessage.includes(keyword);
     });
 
@@ -150,10 +156,6 @@ function getMockResponse(userMessage) {
 
 /* ============================================================
    ChatUI Component
-   ============================================================
-   This is the main function component. Everything inside this
-   function runs every time React "renders" (redraws) the component.
-   State variables trigger re-renders when they change.
    ============================================================ */
 function ChatUI() {
 
@@ -169,9 +171,8 @@ function ChatUI() {
      except React tracks changes for you automatically.
      ---------------------------------------------------------- */
 
-  // messages: An array holding the full conversation history.
-  // Each message is an object: { sender: "user" or "bot", text: "..." }
-  // Starts with a welcome message from the bot.
+  // messages: Array holding the full conversation history.
+  // Each message object: { sender: "user" or "bot", text: "..." }
   const [messages, setMessages] = useState([
     {
       sender: "bot",
@@ -180,209 +181,170 @@ function ChatUI() {
   ]);
 
   // input: The current text in the input field.
-  // Updates every time the student types a character.
   const [input, setInput] = useState("");
 
-  // isLoading: Whether we're waiting for a response from the backend.
-  // When true, we show a typing indicator and disable the send button.
+  // isLoading: Whether we're waiting for a response.
   const [isLoading, setIsLoading] = useState(false);
 
   // showSuggestions: Whether to show the quick suggestion chips.
-  // We hide them after the student sends their first message
-  // so the chat area has more room.
   const [showSuggestions, setShowSuggestions] = useState(true);
 
   /* ----------------------------------------------------------
-     REFS
-     ----------------------------------------------------------
-     useRef() gives us a direct reference to a DOM element.
-     This is like using @ViewChild('messagesEnd') in Angular
-     or document.getElementById() in plain JavaScript.
-     We use it to auto-scroll to the bottom of the chat.
+     REFS — Direct references to DOM elements
+     Like @ViewChild in Angular or document.getElementById()
      ---------------------------------------------------------- */
 
-  // This ref will point to an invisible div at the bottom of the messages list
+  // Points to an invisible div at the bottom of the messages list
   const messagesEndRef = useRef(null);
 
-  // This ref points to the text input field so we can focus it
+  // Points to the text input field so we can focus it
   const inputRef = useRef(null);
 
   /* ----------------------------------------------------------
-     EFFECTS (Side Effects)
-     ----------------------------------------------------------
-     useEffect() runs code AFTER the component renders.
-     The second argument (the dependency array) controls WHEN it runs:
-       - []           → runs once on mount (like ngOnInit)
-       - [messages]   → runs every time "messages" changes
-       - no array     → runs after every render (rarely used)
+     EFFECTS — Run code AFTER the component renders
+     The dependency array controls WHEN it runs:
+       []           → once on mount (like ngOnInit)
+       [messages]   → every time "messages" changes
      ---------------------------------------------------------- */
 
-  // Auto-scroll to the bottom whenever a new message is added.
-  // This runs every time the "messages" array changes.
+  // Auto-scroll to the bottom whenever a new message is added
   useEffect(function () {
-
-    // scrollIntoView smoothly scrolls so the newest message is visible
-    // The ?. is "optional chaining" — it won't crash if the ref is null
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-
-  }, [messages]); // ← dependency array: re-run this effect when "messages" changes
+    try {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+    } catch (err) {
+      // Scroll failed — not critical, just skip it
+    }
+  }, [messages]);
 
   /* ----------------------------------------------------------
      HANDLER: Send a Message
      ----------------------------------------------------------
-     This is the core function. It:
-       1. Adds the user's message to the conversation
-       2. Sends it to the backend (or uses mock for demo)
-       3. Adds the bot's response to the conversation
-
-     "async" means this function can wait for the backend
-     to respond without freezing the UI.
+     1. Adds the user's message to the conversation
+     2. Gets a response (mock for now, API later)
+     3. Adds the bot's response to the conversation
      ---------------------------------------------------------- */
   async function handleSend(messageText) {
 
     // Use the passed-in text (from a suggestion chip) or the input field
-    const text = messageText || input;
+    var text = messageText || input;
 
     // Don't send if the text is empty or only whitespace
-    // .trim() removes spaces from both ends of a string
-    if (!text.trim()) return;
+    if (!text || !text.trim()) {
+      return;
+    }
 
-    // Create the user's message object
-    const userMessage = { sender: "user", text: text };
+    // Save a trimmed copy of the text
+    var cleanText = text.trim();
 
-    // Add the user's message to the conversation.
-    // We use the "spread operator" (...) to copy the existing messages
-    // and add the new one at the end. This creates a NEW array,
-    // which tells React "something changed, re-render."
-    // (In React, you should never mutate state directly — always create a copy.)
-    setMessages(function (previousMessages) {
-      return [...previousMessages, userMessage];
-    });
-
-    // Clear the input field after sending
+    // Clear the input field right away
     setInput("");
 
-    // Hide the suggestion chips since the student is now chatting
+    // Hide the suggestion chips
     setShowSuggestions(false);
 
-    // Show the typing indicator while we wait for a response
+    // Add the user's message to the conversation.
+    // The spread operator (...) copies existing messages and adds the new one.
+    // We pass a FUNCTION to setMessages so React uses the latest state.
+    setMessages(function (prev) {
+      return [...prev, { sender: "user", text: cleanText }];
+    });
+
+    // Show the typing indicator
     setIsLoading(true);
 
-    // ---- Get the chatbot's response ----
-    try {
+    // Default to an error message in case something goes wrong
+    var botResponseText = "I'm having trouble connecting right now. Please try again in a moment.";
 
-      let botResponseText;
+    try {
 
       // ============================================================
       // BACKEND INTEGRATION POINT
       // ============================================================
       // When your teammates' backend is running, uncomment the fetch()
-      // block below and delete the mock response line.
-      //
-      // The fetch() call sends a POST request to the backend server,
-      // just like the HTTP requests you've made in Angular or Ionic.
+      // block below and comment out or delete the mock response lines.
       // ============================================================
 
       /*
       // --- REAL BACKEND (uncomment when ready) ---
-      const response = await fetch(API_URL + "/chat", {
-        method: "POST",                                // HTTP method
-        headers: { "Content-Type": "application/json" }, // Tell server we're sending JSON
-        body: JSON.stringify({                           // Convert JS object to JSON string
-          message: text,                                 // The student's message
-        }),
+      var response = await fetch(API_URL + "/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: cleanText }),
       });
-
-      // Parse the JSON response from the server
-      const data = await response.json();
-
-      // Extract the bot's response text from the server's JSON
+      var data = await response.json();
       botResponseText = data.response;
       */
 
       // --- MOCK RESPONSE (delete when backend is ready) ---
-      // Simulate a short delay so it feels like a real API call
+      // Simulate a short network delay
       await new Promise(function (resolve) {
-        setTimeout(resolve, 800); // Wait 800 milliseconds
+        setTimeout(resolve, 800);
       });
 
-      // Get a mock response based on keywords in the student's message
-      botResponseText = getMockResponse(text);
+      // Get a mock response based on keywords
+      botResponseText = getMockResponse(cleanText);
 
     } catch (error) {
-
-      // If something goes wrong (network error, server down, etc.),
-      // show an error message in the chat instead of crashing
+      // If something goes wrong, log the error.
+      // botResponseText already has a fallback message from above.
       console.error("Error sending message:", error);
-      botResponseText =
-        "I'm having trouble connecting right now. Please try again in a moment.";
-
-    } finally {
-
-      // "finally" runs whether the try succeeded or failed.
-      // Turn off the loading indicator either way.
-      setIsLoading(false);
     }
 
+    // Turn off the loading indicator
+    setIsLoading(false);
+
     // Add the bot's response to the conversation
-    setMessages(function (previousMessages) {
-      return [...previousMessages, { sender: "bot", text: botResponseText }];
+    setMessages(function (prev) {
+      return [...prev, { sender: "bot", text: botResponseText }];
     });
 
-    // Put the cursor back in the input field so the student can keep typing
-    inputRef.current?.focus();
+    // Put the cursor back in the input field
+    try {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    } catch (err) {
+      // Focus failed — not critical
+    }
   }
 
   /* ----------------------------------------------------------
      HANDLER: Keyboard Events
      ----------------------------------------------------------
-     When the student presses Enter in the input field,
-     send the message. This is like (keydown.enter) in Angular.
-     ---------------------------------------------------------- */
-  function handleKeyDown(event) {
+     When the student presses Enter, send the message.
+     This is like (keydown.enter) in Angular.
 
-    // event.key tells us which key was pressed
-    if (event.key === "Enter") {
-      handleSend(); // Send the current input
+     ** FIX: e.preventDefault() stops the browser from doing
+     anything unexpected with the Enter key (like submitting
+     a form or refreshing the page). **
+     ---------------------------------------------------------- */
+  function handleKeyDown(e) {
+    if (e.key === "Enter") {
+      // CRITICAL: Prevent the browser's default Enter behavior.
+      // Without this, the page can reload and go white.
+      e.preventDefault();
+
+      // Only send if we're not already waiting for a response
+      if (!isLoading) {
+        handleSend();
+      }
     }
   }
 
   /* ----------------------------------------------------------
-     HANDLER: Suggestion Chip Click
-     ----------------------------------------------------------
-     When a student clicks a suggestion chip, send that
-     suggestion's full message directly.
-     ---------------------------------------------------------- */
-  function handleSuggestionClick(suggestionMessage) {
-    handleSend(suggestionMessage);
-  }
-
-  /* ----------------------------------------------------------
      RENDER (JSX)
-     ----------------------------------------------------------
-     Everything below is the visual output of this component.
-     React calls this every time state changes and updates
-     only the parts of the DOM that actually changed.
      ---------------------------------------------------------- */
   return (
-
-    // Outer container for the entire chat interface
     <div className="chat-container">
 
       {/* ---- Messages Area ---- */}
-      {/* This scrollable area shows the full conversation. */}
       <div className="chat-messages">
 
-        {/* Map over the messages array and render each one.
-            .map() is React's way of looping — like *ngFor in Angular.
-            Each item needs a unique "key" prop so React can track it. */}
+        {/* Loop through messages — like *ngFor in Angular */}
         {messages.map(function (message, index) {
           return (
-
-            // Each message gets a wrapper div.
-            // We add "user" or "bot" as a class to style them differently.
-            // The "key" prop is required by React for list items — it helps
-            // React know which items changed when re-rendering.
             <div key={index} className={"message-row " + message.sender}>
 
               {/* Bot messages get a small avatar icon */}
@@ -390,19 +352,15 @@ function ChatUI() {
                 <div className="bot-avatar">MLC</div>
               )}
 
-              {/* The actual message bubble */}
+              {/* The message bubble */}
               <div className={"message-bubble " + message.sender}>
                 {message.text}
               </div>
-
             </div>
           );
         })}
 
-        {/* ---- Typing Indicator ---- */}
-        {/* Show animated dots when waiting for a response. */}
-        {/* The && pattern is a conditional render — like *ngIf in Angular. */}
-        {/* If isLoading is true, render the div. If false, render nothing. */}
+        {/* Typing indicator — like *ngIf in Angular */}
         {isLoading && (
           <div className="message-row bot">
             <div className="bot-avatar">MLC</div>
@@ -414,23 +372,21 @@ function ChatUI() {
           </div>
         )}
 
-        {/* Invisible element at the bottom — we scroll to this */}
-        {/* The ref={messagesEndRef} connects this div to our useRef variable */}
+        {/* Invisible scroll target at the bottom */}
         <div ref={messagesEndRef} />
-
       </div>
 
       {/* ---- Suggestion Chips ---- */}
-      {/* Only shown before the student sends their first real message. */}
       {showSuggestions && (
         <div className="suggestions-bar">
           {SUGGESTIONS.map(function (suggestion, index) {
             return (
               <button
                 key={index}
+                type="button"
                 className="suggestion-chip"
                 onClick={function () {
-                  handleSuggestionClick(suggestion.message);
+                  handleSend(suggestion.message);
                 }}
               >
                 {suggestion.label}
@@ -441,41 +397,25 @@ function ChatUI() {
       )}
 
       {/* ---- Input Area ---- */}
-      {/* The bottom bar where the student types their message. */}
       <div className="chat-input-area">
-
-        {/* Text input field */}
-        {/* ref: connects to our inputRef so we can .focus() it */}
-        {/* value: controlled by the "input" state variable */}
-        {/* onChange: fires every keystroke, updates the state */}
-        {/* onKeyDown: listens for Enter key to send */}
-        {/* disabled: prevent typing while waiting for a response */}
         <input
           ref={inputRef}
           type="text"
           className="chat-input"
           placeholder="Type your message..."
           value={input}
-          onChange={function (event) {
-            setInput(event.target.value);
-          }}
+          onChange={function (e) { setInput(e.target.value); }}
           onKeyDown={handleKeyDown}
           disabled={isLoading}
         />
-
-        {/* Send button */}
-        {/* disabled: can't send while loading or if input is empty */}
-        {/* onClick: calls handleSend with no argument (uses input state) */}
         <button
+          type="button"
           className="send-button"
-          onClick={function () {
-            handleSend();
-          }}
+          onClick={function () { handleSend(); }}
           disabled={isLoading || !input.trim()}
         >
           Send
         </button>
-
       </div>
 
     </div>
