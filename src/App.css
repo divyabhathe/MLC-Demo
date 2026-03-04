@@ -1,16 +1,13 @@
-/* ============================================================
+/* 
    App.css — Layout & Header Styles
-   ============================================================
-   Styles for the App component (the outer shell).
+   
+   Styles for the App component -> outer shell
    This handles the header bar and the page layout.
    
-   If you've used Bootstrap in your portfolio project,
-   think of this as replacing Bootstrap's navbar and
-   container classes with custom CSS.
-   ============================================================ */
+   */
 
-/* ---------- App Container ---------- */
-/* This wraps the entire page. We use flexbox with
+/* App Container */
+/* Wraps the entire page, use flexbox with
    column direction so the header sits on top and
    the main content fills the rest. */
 .app-container {
@@ -21,7 +18,7 @@
   background-color: #f5f7fa;  /* Light gray page background */
 }
 
-/* ---------- Header ---------- */
+/* Header */
 /* The top bar with the MLC branding. Uses a dark teal
    color taken from the MLC app's actual color scheme. */
 .app-header {
@@ -71,7 +68,7 @@
   font-weight: 400;                   /* Normal weight */
 }
 
-/* ---------- Main Content Area ---------- */
+/* Main Content Area */
 /* This is where the ChatUI component renders.
    flex: 1 makes it fill all remaining space after the header. */
 .app-main {
