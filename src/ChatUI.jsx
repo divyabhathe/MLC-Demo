@@ -1,52 +1,57 @@
-/* ============================================================
-   ChatUI.jsx — Chat Interface Component
-   ============================================================
-   This is the main chat component where students interact
-   with the MLC chatbot. It handles:
+/*
+   ChatUI.jsx —> Chat Interface Component
+  
+   Main chat component where students interact with the MLC chatbot
+
+  Handles:
      - Displaying the conversation (message bubbles)
      - Capturing user input (text field + send button)
      - Sending messages to the backend API
      - Showing quick suggestion chips
      - Auto-scrolling to the newest message
 
-   REACT CONCEPTS USED:
-     useState  — stores data that changes over time (like variables in Angular)
-     useEffect — runs code when something changes (like ngOnInit / ngOnChanges)
-     useRef    — gives us a reference to a DOM element (like @ViewChild in Angular)
+   REACT concepts used:
+     useState  —> stores data that changes over time (like variables in Angular)
+     useEffect —> runs code when something changes (like ngOnInit / ngOnChanges)
+     useRef    —> gives us a reference to a DOM element (like @ViewChild in Angular)
 
    BACKEND INTEGRATION NOTE:
      Right now, the API call points to a local server URL.
-     When your teammates finish the backend, just update the
+     When backend is done, just update the
      API_URL constant below. Everything else stays the same.
-   ============================================================ */
+  
+  
+     */
 
-// ---- Imports ----
-// useState:  lets us create variables that trigger a re-render when they change
-// useEffect: lets us run side effects (like scrolling) when data changes
-// useRef:    lets us grab a reference to a DOM element directly
+// Imports 
+// useState ->  lets us create variables that trigger a re-render when they change
+// useEffect -> lets us run side effects (like scrolling) when data changes
+// useRef ->    lets us grab a reference to a DOM element directly
 import { useState, useEffect, useRef } from "react";
 
 // Import the styles specific to this component
 import "./ChatUI.css";
 
-/* ============================================================
-   CONFIGURATION — Update this when backend is ready
-   ============================================================ */
+/* 
+   CONFIGURATION — Update this when backend is ready [CHANGE THIS]
+  */
 
 // This is the URL where the backend server is running.
-// During development with your teammates' Python server,
+// During development with your Python server,
 // it will be something like "http://localhost:8000".
 // For the demo, we use mock responses (see handleSend below).
+
 const API_URL = "http://localhost:8000";
 
-/* ============================================================
+/*
    SUGGESTION CHIPS DATA
-   ============================================================
+  
    These are the quick-tap suggestions shown to the student.
    They're based on the example queries from the MLC design doc.
    Each one has a label (what the button shows) and a message
    (what actually gets sent to the chatbot).
    Keeping this as a separate array makes it easy to update later. */
+
 const SUGGESTIONS = [
   {
     label: "Study tips",                                    // Short text shown on the chip
@@ -66,12 +71,13 @@ const SUGGESTIONS = [
   },
 ];
 
-/* ============================================================
-   MOCK RESPONSES — Remove this section when backend is ready
-   ============================================================
-   Since the backend isn't connected yet, we simulate responses
-   so the demo works standalone. These are based on the example
+/* 
+   MOCK RESPONSES — Remove this section when backend is ready [CHANGE THIS]
+   
+   Simulated esponses so the demo works standalone. Based on the example
    responses from the MLC Chatbot Design Specification. */
+
+
 const MOCK_RESPONSES = {
 
   // Default fallback response if no keyword matches
@@ -119,11 +125,14 @@ const MOCK_RESPONSES = {
   ],
 };
 
-/* ============================================================
-   getMockResponse — Temporary function for demo mode
-   ============================================================
+/* 
+   getMockResponse — Temporary function for demo mode. [CHANGE THIS]
+
    Searches the user's message for keywords and returns a
    matching response. Delete this when the real backend is ready. */
+
+
+
 function getMockResponse(userMessage) {
 
   // Safety check: if userMessage is somehow not a string, return default
@@ -154,22 +163,22 @@ function getMockResponse(userMessage) {
   return MOCK_RESPONSES.default;
 }
 
-/* ============================================================
+/* 
    ChatUI Component
-   ============================================================ */
+    */
 function ChatUI() {
 
-  /* ----------------------------------------------------------
+  /* 
      STATE VARIABLES
-     ----------------------------------------------------------
-     useState() creates a variable + a setter function.
-     When you call the setter, React re-renders the component.
+   
+     useState() creates a variable + a setter function
+     When you call the setter, React re-renders the component
 
      Syntax: const [value, setValue] = useState(initialValue)
 
-     This is like declaring a property in an Angular component class,
+     Like declaring a property in an Angular component class,
      except React tracks changes for you automatically.
-     ---------------------------------------------------------- */
+    */
 
   // messages: Array holding the full conversation history.
   // Each message object: { sender: "user" or "bot", text: "..." }
@@ -189,10 +198,10 @@ function ChatUI() {
   // showSuggestions: Whether to show the quick suggestion chips.
   const [showSuggestions, setShowSuggestions] = useState(true);
 
-  /* ----------------------------------------------------------
+  /* 
      REFS — Direct references to DOM elements
      Like @ViewChild in Angular or document.getElementById()
-     ---------------------------------------------------------- */
+     */
 
   // Points to an invisible div at the bottom of the messages list
   const messagesEndRef = useRef(null);
@@ -200,12 +209,12 @@ function ChatUI() {
   // Points to the text input field so we can focus it
   const inputRef = useRef(null);
 
-  /* ----------------------------------------------------------
+  /* 
      EFFECTS — Run code AFTER the component renders
      The dependency array controls WHEN it runs:
        []           → once on mount (like ngOnInit)
        [messages]   → every time "messages" changes
-     ---------------------------------------------------------- */
+     */
 
   // Auto-scroll to the bottom whenever a new message is added
   useEffect(function () {
@@ -218,13 +227,13 @@ function ChatUI() {
     }
   }, [messages]);
 
-  /* ----------------------------------------------------------
+  /* 
      HANDLER: Send a Message
-     ----------------------------------------------------------
+     
      1. Adds the user's message to the conversation
      2. Gets a response (mock for now, API later)
      3. Adds the bot's response to the conversation
-     ---------------------------------------------------------- */
+     */
   async function handleSend(messageText) {
 
     // Use the passed-in text (from a suggestion chip) or the input field
@@ -259,12 +268,12 @@ function ChatUI() {
 
     try {
 
-      // ============================================================
-      // BACKEND INTEGRATION POINT
-      // ============================================================
+      //
+      // BACKEND INTEGRATION POINT  [CHANGE THIS]
+      // 
       // When your teammates' backend is running, uncomment the fetch()
       // block below and comment out or delete the mock response lines.
-      // ============================================================
+      // 
 
       /*
       // --- REAL BACKEND (uncomment when ready) ---
@@ -310,16 +319,16 @@ function ChatUI() {
     }
   }
 
-  /* ----------------------------------------------------------
+  /* 
      HANDLER: Keyboard Events
-     ----------------------------------------------------------
+     
      When the student presses Enter, send the message.
      This is like (keydown.enter) in Angular.
 
-     ** FIX: e.preventDefault() stops the browser from doing
+     ** FIXED : e.preventDefault() stops the browser from doing
      anything unexpected with the Enter key (like submitting
      a form or refreshing the page). **
-     ---------------------------------------------------------- */
+    */
   function handleKeyDown(e) {
     if (e.key === "Enter") {
       // CRITICAL: Prevent the browser's default Enter behavior.
@@ -333,9 +342,9 @@ function ChatUI() {
     }
   }
 
-  /* ----------------------------------------------------------
+  /* 
      RENDER (JSX)
-     ---------------------------------------------------------- */
+     */
   return (
     <div className="chat-container">
 
