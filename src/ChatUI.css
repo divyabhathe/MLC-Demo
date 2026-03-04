@@ -1,18 +1,21 @@
-/* ============================================================
+/* 
    ChatUI.css — Chat Interface Styles
-   ============================================================
+   
    Styles for the chat messages, input area, suggestion chips,
    and typing indicator.
 
-   The color scheme matches the MLC application:
+   The color scheme matches the MLC application screenshot:
+   
      - Teal (#0f766e) for primary/bot elements
      - Warm white (#fafbfc) for the chat background
      - Blue (#2563eb) for user message bubbles
-   ============================================================ */
+   */
 
-/* ---------- Chat Container ---------- */
+/* Chat Container */
+
 /* Fills the main content area and stacks children vertically:
    messages on top, suggestions in the middle, input at the bottom. */
+
 .chat-container {
   display: flex;              /* Flexbox layout */
   flex-direction: column;     /* Stack vertically */
@@ -25,7 +28,7 @@
   border-right: 1px solid #e8ecf0;  /* Subtle right border to match */
 }
 
-/* ---------- Messages Scrollable Area ---------- */
+/* Messages Scrollable Area */
 /* This holds all the message bubbles and scrolls vertically
    when the conversation gets long. */
 .chat-messages {
@@ -37,7 +40,7 @@
   gap: 4px;                   /* Small gap between message rows */
 }
 
-/* Custom scrollbar styling — makes it thinner and less distracting.
+/* Custom scrollbar styling —> makes it thinner and less distracting.
    Works in Chrome, Edge, and Safari. */
 .chat-messages::-webkit-scrollbar {
   width: 5px;                 /* Thin scrollbar */
@@ -52,8 +55,9 @@
   border-radius: 10px;        /* Rounded edges */
 }
 
-/* ---------- Message Row ---------- */
-/* Each message (user or bot) sits in a row.
+/* Message Row */
+
+/* Each message -> user / bot sits in a row.
    The row handles horizontal alignment — bot messages align
    left, user messages align right. */
 .message-row {
@@ -73,7 +77,7 @@
   align-self: flex-end;       /* Push to the right */
 }
 
-/* ---------- Bot Avatar ---------- */
+/* Bot Avatar */
 /* Small circular badge that appears next to bot messages. */
 .bot-avatar {
   width: 32px;                /* Circle dimensions */
@@ -92,7 +96,7 @@
   letter-spacing: 0.3px;      /* Tiny letter spacing */
 }
 
-/* ---------- Message Bubble ---------- */
+/* Message Bubble */
 /* The actual speech bubble containing the message text. */
 .message-bubble {
   padding: 10px 14px;         /* Inner padding */
@@ -102,24 +106,24 @@
   word-wrap: break-word;      /* Wrap long words instead of overflowing */
 }
 
-/* Bot bubbles: light background, sits on the left */
+/* Bot bubbles -> light background, sits on the left */
 .message-bubble.bot {
   background-color: #ffffff;          /* White bubble */
   color: #334155;                     /* Dark gray text */
   border: 1px solid #e2e8f0;         /* Very subtle border */
   border-bottom-left-radius: 4px;    /* Flatten the bottom-left corner */
-  /* — this makes it visually "point" toward the avatar */
+  /* this makes it visually "point" toward the avatar */
 }
 
-/* User bubbles: colored background, sits on the right */
+/* User bubbles -> colored background, sits on the right */
 .message-bubble.user {
   background-color: #2563eb;          /* Blue background */
   color: #ffffff;                     /* White text */
   border-bottom-right-radius: 4px;   /* Flatten the bottom-right corner */
 }
 
-/* ---------- Typing Indicator ---------- */
-/* Three animated dots that show the bot is "thinking." */
+/* Typing Indicator */
+/* Three animated dots that show the bot is thinking / loading */
 .typing-indicator {
   display: flex;              /* Place dots in a row */
   align-items: center;        /* Vertically center them */
@@ -160,7 +164,7 @@
   }
 }
 
-/* ---------- Suggestion Chips Bar ---------- */
+/* Suggestion Chips Bar */
 /* Horizontal row of quick-tap buttons shown before the first message. */
 .suggestions-bar {
   display: flex;              /* Horizontal row */
@@ -191,7 +195,7 @@
   color: #0f766e;             /* Teal text */
 }
 
-/* ---------- Input Area ---------- */
+/* Input Area */
 /* The bottom bar with the text field and send button. */
 .chat-input-area {
   display: flex;              /* Text field and button side by side */
@@ -254,8 +258,8 @@
   cursor: not-allowed;        /* Not-allowed cursor */
 }
 
-/* ---------- Responsive Adjustments ---------- */
-/* On smaller screens (mobile), reduce padding and font sizes
+/* Responsive Adjustments */
+/* On smaller screens reduce padding and font sizes
    so the chat doesn't feel cramped. */
 @media (max-width: 600px) {
 
