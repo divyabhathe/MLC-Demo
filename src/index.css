@@ -1,11 +1,10 @@
-/* ============================================================
-   index.css — Global Base Styles
-   ============================================================
-   This file sets up baseline styles for the entire app.
-   Think of it like a CSS reset + global defaults.
-   In your portfolio project, this is similar to the
-   universal styles you put at the top of styles.css.
-   ============================================================ */
+/*
+   index.css —> Global Base Styles
+   
+   Where the baseline styles for the entire app.
+   CSS reset + global defaults.
+
+*/
 
 /* ---------- CSS Reset ---------- */
 /* Remove default margin/padding the browser adds to elements */
