@@ -275,7 +275,7 @@ function ChatUI() {
       // block below and comment out or delete the mock response lines.
       // 
 
-      /*
+      
       // --- REAL BACKEND (uncomment when ready) ---
       var response = await fetch(API_URL + "/chat", {
         method: "POST",
@@ -284,16 +284,18 @@ function ChatUI() {
       });
       var data = await response.json();
       botResponseText = data.response;
-      */
-
+      
+      /*
       // --- MOCK RESPONSE (delete when backend is ready) ---
       // Simulate a short network delay
       await new Promise(function (resolve) {
         setTimeout(resolve, 800);
       });
+      
 
       // Get a mock response based on keywords
       botResponseText = getMockResponse(cleanText);
+      */
 
     } catch (error) {
       // If something goes wrong, log the error.
