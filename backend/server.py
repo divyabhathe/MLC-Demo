@@ -3,12 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from zotgpt_client import ask_zotgpt
+from sql_agent import query_for_context
 
 
 app = FastAPI()
 
 
-#Enable CORS so the React frontend can call this backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,12 +18,10 @@ app.add_middleware(
 )
 
 
-#Request format expected from frontend
 class ChatRequest(BaseModel):
     message: str
 
 
-#Response format returned to frontend
 class ChatResponse(BaseModel):
     response: str
 
@@ -36,7 +34,18 @@ def root():
 @app.post("/chat")
 async def chat(request: ChatRequest):
     user_message = request.message
+    db_context = query_for_context(user_message)
 
-    bot_reply = ask_zotgpt(user_message)
+    if db_context:
+        enriched_prompt = (
+            f"Student asked: {user_message}\n\n"
+            f"Relevant data from our database:\n{db_context}\n\n"
+            "Use this data to give a direct, data-backed answer. "
+            "If the data answers the question, give the numbers or details. "
+            "Otherwise give general study tips."
+        )
+        bot_reply = ask_zotgpt(enriched_prompt)
+    else:
+        bot_reply = ask_zotgpt(user_message)
 
     return ChatResponse(response=bot_reply)
