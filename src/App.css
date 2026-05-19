@@ -72,7 +72,39 @@
 /* This is where the ChatUI component renders.
    flex: 1 makes it fill all remaining space after the header. */
 .app-main {
-  flex: 1;            /* Grow to fill all available vertical space */
-  display: flex;      /* Flex so the chat inside can also stretch */
-  overflow: hidden;   /* Prevent double scrollbars */
+  flex: 1;                  /* Grow to fill all available vertical space */
+  display: flex;            /* Flex so children can stretch */
+  align-items: center;      /* Center the welcome panel vertically */
+  justify-content: center;  /* Center it horizontally too */
+  overflow: hidden;         /* Prevent double scrollbars */
+  padding: 24px;
+}
+
+/* Welcome Panel — placeholder content shown behind the floating widget.
+   In the Prenostik host repo this area is replaced by the real dashboard
+   (Student/Instructor charts + tasks). */
+.app-welcome {
+  max-width: 520px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.6);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(15, 23, 42, 0.05);
+  border-radius: 20px;
+  padding: 36px 32px;
+  box-shadow: 0 10px 30px -12px rgba(15, 23, 42, 0.08);
+}
+
+.app-welcome-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 10px;
+  letter-spacing: -0.3px;
+}
+
+.app-welcome-text {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.6;
 }

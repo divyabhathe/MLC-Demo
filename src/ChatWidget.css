@@ -1,0 +1,345 @@
+/*
+   ChatWidget.css — Floating Chat Widget Styles
+
+   Visual goals:
+     - Glassmorphism: semi-transparent surfaces + backdrop-blur
+     - Rounded corners (24px), soft layered shadows
+     - Trigger button "breathing" via halo pulse + gentle bounce
+     - Open animation: scale + fade from bottom-right corner
+*/
+
+/* Root — fixes the widget to the bottom-right of the viewport.
+   Pointer events disabled on the wrapper so it doesn't block the
+   page behind it; re-enabled on the actual interactive children. */
+.chat-widget-root {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9999;
+  pointer-events: none;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+.chat-widget-root > * {
+  pointer-events: auto;
+}
+
+/* Trigger Button */
+
+.chat-widget-trigger {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+
+  /* Glassmorphic teal — semi-transparent gradient over a blurred backdrop */
+  background: linear-gradient(
+    135deg,
+    rgba(15, 118, 110, 0.92) 0%,
+    rgba(13, 148, 136, 0.88) 100%
+  );
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  backdrop-filter: blur(12px) saturate(140%);
+
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Soft layered shadow (shadow-2xl analog) */
+  box-shadow:
+    0 10px 25px -5px rgba(15, 118, 110, 0.45),
+    0 20px 40px -10px rgba(15, 23, 42, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.chat-widget-trigger:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow:
+    0 14px 30px -5px rgba(15, 118, 110, 0.55),
+    0 24px 50px -10px rgba(15, 23, 42, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+}
+
+.chat-widget-trigger:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.chat-widget-trigger.is-open {
+  /* When open, soften the trigger so it visually recedes behind the panel */
+  background: linear-gradient(
+    135deg,
+    rgba(15, 118, 110, 0.85) 0%,
+    rgba(13, 148, 136, 0.78) 100%
+  );
+}
+
+/* Icon inside the trigger */
+.chat-widget-trigger-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.chat-widget-trigger.is-open .chat-widget-trigger-icon {
+  transform: rotate(0deg) scale(1.05);
+}
+
+/* Halo — soft pulsing ring that creates the "breathing" feel */
+.chat-widget-trigger-halo {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(15, 118, 110, 0.45) 0%,
+    rgba(15, 118, 110, 0) 70%
+  );
+  opacity: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.chat-widget-trigger.is-breathing .chat-widget-trigger-halo {
+  animation: widget-breathe 2.8s ease-in-out infinite;
+}
+
+/* Subtle bounce — gentler than Tailwind's animate-bounce so it doesn't
+   distract while the user is reading the page. */
+.chat-widget-trigger.is-breathing {
+  animation: widget-subtle-bounce 2.8s ease-in-out infinite;
+}
+
+@keyframes widget-breathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 1;
+  }
+}
+
+@keyframes widget-subtle-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* Pause both animations on hover so the button feels responsive, not noisy */
+.chat-widget-trigger.is-breathing:hover,
+.chat-widget-trigger.is-breathing:hover .chat-widget-trigger-halo {
+  animation-play-state: paused;
+}
+
+/* Chat Panel */
+
+.chat-widget-panel {
+  position: absolute;
+  right: 0;
+  bottom: 76px; /* trigger height (60) + 16px gap */
+  width: min(400px, calc(100vw - 32px));
+  height: min(620px, calc(100vh - 120px));
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  /* Rounded corners per spec */
+  border-radius: 24px;
+
+  /* Glassmorphic surface — translucent white with strong blur */
+  background: rgba(255, 255, 255, 0.78);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+
+  /* Soft layered shadow */
+  box-shadow:
+    0 20px 50px -12px rgba(15, 23, 42, 0.25),
+    0 30px 60px -20px rgba(15, 118, 110, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+
+  /* Open animation: scale up from the bottom-right (where the trigger is) */
+  transform-origin: bottom right;
+  transition:
+    transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.22s ease;
+}
+
+.chat-widget-panel.closed {
+  transform: scale(0.6) translateY(8px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.chat-widget-panel.open {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Panel header */
+
+.chat-widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+
+  /* Slight tinted top to differentiate from chat body */
+  background: linear-gradient(
+    135deg,
+    rgba(15, 118, 110, 0.08) 0%,
+    rgba(37, 99, 235, 0.05) 100%
+  );
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.chat-widget-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-widget-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 10px -2px rgba(15, 118, 110, 0.4);
+}
+
+.chat-widget-title-group {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.chat-widget-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+  letter-spacing: -0.2px;
+}
+
+.chat-widget-subtitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.chat-widget-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.18);
+}
+
+.chat-widget-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.04);
+  border: 1px solid transparent;
+  color: #475569;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.chat-widget-close:hover {
+  background: rgba(15, 23, 42, 0.08);
+  color: #0f172a;
+  transform: rotate(90deg);
+}
+
+/* Body — wraps ChatUI so its existing flex:1 layout fills the panel */
+.chat-widget-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  background: rgba(250, 251, 252, 0.6);
+}
+
+/* Override a couple of ChatUI styles so it sits cleanly inside the panel.
+   ChatUI has max-width: 900px and side borders intended for the standalone
+   page layout — neither makes sense inside a 400px widget. */
+.chat-widget-body .chat-container {
+  max-width: 100%;
+  border-left: none;
+  border-right: none;
+  background-color: transparent;
+}
+
+.chat-widget-body .chat-messages {
+  padding: 18px 16px;
+}
+
+.chat-widget-body .suggestions-bar,
+.chat-widget-body .chat-input-area {
+  background-color: rgba(255, 255, 255, 0.6);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+/* Responsive — on small screens the panel becomes near-fullscreen */
+@media (max-width: 480px) {
+  .chat-widget-root {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .chat-widget-panel {
+    width: calc(100vw - 32px);
+    height: calc(100vh - 100px);
+    bottom: 72px;
+    border-radius: 20px;
+  }
+
+  .chat-widget-trigger {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+/* Respect reduced-motion preferences — disable breathing/bounce */
+@media (prefers-reduced-motion: reduce) {
+  .chat-widget-trigger.is-breathing,
+  .chat-widget-trigger.is-breathing .chat-widget-trigger-halo {
+    animation: none;
+  }
+  .chat-widget-panel {
+    transition: opacity 0.15s ease;
+  }
+  .chat-widget-panel.closed {
+    transform: none;
+  }
+}
